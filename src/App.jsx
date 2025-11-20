@@ -3,7 +3,6 @@ import {
   RouterProvider,
   createBrowserRouter,
 } from 'react-router-dom';
-
 import Events from './components/Events/Events.jsx';
 import EventDetails from './components/Events/EventDetails.jsx';
 import NewEvent from './components/Events/NewEvent.jsx';
