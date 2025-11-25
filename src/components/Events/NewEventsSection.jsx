@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import LoadingIndicator from '../UI/LoadingIndicator.jsx';
 import ErrorBlock from '../UI/ErrorBlock.jsx';
@@ -6,29 +5,18 @@ import EventItem from './EventItem.jsx';
 import { fetchEvents } from '../../util/http.js';
 
 export default function NewEventsSection() {
-  // const [data, setData] = useState();
-  // const [error, setError] = useState();
-  // const [isLoading, setIsLoading] = useState(false);
 
   const { data, isPending, error, isError } = useQuery({
-    queryFn: fetchEvents,
     queryKey: ['events'],
+    queryFn: fetchEvents,
+    staleTime: 5000,
+    cacheTime: 10000,
   });
 
-  // useEffect(() => {
-  //   fetchEvents()
-  //     .then((events) => {
-  //       setData(events);
-  //     })
-  //     .catch((error) => {
-  //       setError(error);
-  //     })
-  //     .finally(() => {
-  //       setIsLoading(false);
-  //     });
-  // }, []);
-
   let content;
+
+  console.log(data);
+
 
   if (isPending) {
     content = <LoadingIndicator />;
@@ -40,7 +28,7 @@ export default function NewEventsSection() {
     );
   }
 
-  if (data) {
+  if (data && data.length > 0) {
     content = (
       <ul className="events-list">
         {data.map((event) => (

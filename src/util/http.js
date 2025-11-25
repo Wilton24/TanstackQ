@@ -1,5 +1,6 @@
+
 export async function fetchEvents() {
-    setIsLoading(true);
+    // setIsLoading(true);
     const response = await fetch('http://localhost:3000/events');
 
     if (!response.ok) {
