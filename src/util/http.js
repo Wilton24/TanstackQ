@@ -1,16 +1,30 @@
+export async function fetchEvents(searchTerm) {
+    let url = 'http://localhost:3000/events';
 
-export async function fetchEvents() {
-    // setIsLoading(true);
-    const response = await fetch('http://localhost:3000/events');
+    if (searchTerm) {
+        url += `?search=${encodeURIComponent(searchTerm)}`;
+    }
+
+    const response = await fetch(url);
 
     if (!response.ok) {
-        const error = new Error('An error occurred while fetching the events');
+        const error = new Error('An error occurred while fetching the events.');
         error.code = response.status;
-        error.info = await response.json();
+
+        try {
+            error.info = await response.json();
+        } catch (e) {
+            error.info = await response.text();
+        }
+
         throw error;
     }
 
-    const { events } = await response.json();
+    const data = await response.json();
 
-    return events;
+    if (!data || !data.events) {
+        throw new Error('Invalid data format received from server. "events" property is missing.');
+    }
+
+    return data.events;
 }
