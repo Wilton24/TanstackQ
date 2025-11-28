@@ -1,19 +1,65 @@
-import { Link, Outlet, useParams } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header.jsx';
-import { useQuery } from '@tanstack/react-query';
-import { fetchEvent } from '../../util/http.js';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchEvent, deleteEvent, queryClient } from '../../util/http.js';
+import ErrorBlock from '../UI/ErrorBlock.jsx';
 
 export default function EventDetails() {
 
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  const { data, isPending, error, isError } = useQuery({
+  const { data, isPending, isError, error } = useQuery({
     queryKey: ['event-details', id],
-    queryFn: ({ signal }) => { return fetchEvent({ id, signal }) },
+    queryFn: ({ signal }) => { return fetchEvent({ signal, id }) },
+    enabled: !!id,
   });
 
-  console.log(data);
+  const { mutate } = useMutation({
+    mutationFn: deleteEvent,
 
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      // queryClientHook.removeQueries({ queryKey: ['event-details', id] });
+      navigate('/events');
+    }
+  });
+
+  function handleDelete() {
+    mutate({ id });
+  }
+
+  let content;
+
+  if (isPending) {
+    content = <div id="event-details-content" className='center'>
+      <p>Loading event details...</p>
+    </div>;
+  }
+
+  if (isError) {
+    content = <div id="event-details-content" className='center'>
+      <ErrorBlock title="Error loading event details" message={error.info?.message || "An unexpected error occurred."} /> </div>
+  };
+
+  if (data) {
+    const formattedDate = new Date(data.date).toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    content = <div id="event-details-content">
+      <img src={`http://localhost:3000/${data?.image}`} alt={data?.title} />
+      <div id="event-details-info">
+        <div>
+          <p id="event-details-location">{data?.location}</p>
+          <time dateTime={`Todo-DateT$Todo-Time`}>{formattedDate} @ {data?.time}</time>
+        </div>
+        <p id="event-details-description">{data?.description}</p>
+      </div>
+    </div>
+  }
 
   return (
     <>
@@ -27,20 +73,16 @@ export default function EventDetails() {
         <header>
           <h1>{data?.title}</h1>
           <nav>
-            <button>Delete</button>
+            <button
+              onClick={handleDelete}
+            // disabled={isPending}
+            >
+              {isPending ? 'Deleting...' : 'Delete'}
+            </button>
             <Link to="edit">Edit</Link>
           </nav>
         </header>
-        <div id="event-details-content">
-          <img src={`http://localhost:3000/${data?.image}`} alt="" />
-          <div id="event-details-info">
-            <div>
-              <p id="event-details-location">{data?.location}</p>
-              <time dateTime={`Todo-DateT$Todo-Time`}>{data?.time}</time>
-            </div>
-            <p id="event-details-description">{data?.description}</p>
-          </div>
-        </div>
+        {content}
       </article>
     </>
   );

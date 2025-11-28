@@ -18,7 +18,6 @@ export default function NewEvent() {
   });
 
   function handleSubmit(formData) {
-    console.log('Working this?');
     mutate({ event: formData });
   }
 
@@ -26,7 +25,7 @@ export default function NewEvent() {
     <Modal onClose={() => navigate('../')}>
       <EventForm onSubmit={handleSubmit}>
 
-        {(isPending || isLoading) && <p>Sending data...</p>}
+        {(isPending || isLoading) && (<p>Sending data...</p>)}
         {!isPending && (<>
           <Link to="../" className="button-text">
             Cancel
