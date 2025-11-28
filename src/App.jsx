@@ -8,6 +8,7 @@ import EventDetails from './components/Events/EventDetails.jsx';
 import NewEvent from './components/Events/NewEvent.jsx';
 import EditEvent from './components/Events/EditEvent.jsx';
 
+
 const router = createBrowserRouter([
   {
     path: '/',
