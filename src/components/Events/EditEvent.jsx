@@ -18,17 +18,19 @@ export default function EditEvent() {
 
   const { mutate } = useMutation({
     mutationFn: updateEvent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['event-details', id] });
-
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-
-      navigate(`../`);
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ['event-details', id] });
+    // }
+    onMutate: async (data) => {
+      const newEvent = data.eventData
+      await queryClient.cancelQueries({ queryKey: ['event-details', id] });
+      queryClient.setQueryData(['event-details', id], newEvent);
     }
   });
 
   function handleSubmit(formData) {
     mutate({ id, eventData: formData });
+    navigate(`../`);
   };
 
   function handleClose() {
