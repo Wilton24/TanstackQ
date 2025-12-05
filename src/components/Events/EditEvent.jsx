@@ -24,8 +24,19 @@ export default function EditEvent() {
     onMutate: async (data) => {
       const newEvent = data.eventData
       await queryClient.cancelQueries({ queryKey: ['event-details', id] });
+      const oldData = queryClient.getQueryData(['event-details', id]);
       queryClient.setQueryData(['event-details', id], newEvent);
-    }
+
+      return { oldData };
+    },
+
+    onError: (error, variables, data, context) => {
+      queryClient.setQueryData(['event-details', id], context.oldData);
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['event-details', id] });
+    },
   });
 
   function handleSubmit(formData) {
