@@ -91,4 +91,38 @@ export async function deleteEvent({ id, signal }) {
     }
 
     return response.json();
+};
+
+export async function updateEvent({ id, eventData, signal }) {
+    const requestBody = {
+        event: eventData
+    };
+    // console.log(id, eventData, signal);
+
+
+    const response = await fetch(`http://localhost:3000/events/${id}`, {
+        signal,
+        method: 'PUT',
+        body: JSON.stringify(requestBody),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        let errorInfo;
+        try {
+            errorInfo = await response.json();
+        } catch (e) {
+            errorInfo = { message: response.statusText || 'Unknown server error' };
+        }
+
+        const error = new Error('An error occurred while updating the event');
+        error.code = response.status;
+        error.info = errorInfo;
+        throw error;
+    }
+    const { event } = await response.json();
+
+    return event;
 }

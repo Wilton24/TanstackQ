@@ -128,6 +128,9 @@ app.put('/events/:id', async (req, res) => {
     return res.status(400).json({ message: 'Invalid data provided.' });
   }
 
+  // console.log(`id is ${id}, Event is ${event}`);
+
+
   const eventsFileContent = await fs.readFile('./data/events.json');
   const events = JSON.parse(eventsFileContent);
 
